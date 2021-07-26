@@ -1,14 +1,15 @@
-import React, { useState } from "react";
 import "./App.css";
 import styled, { ThemeProvider } from "styled-components";
 import { lightTheme, darkTheme, GlobalStyles } from "./Themes.js";
+import { useStickyState } from "./LocalStorage";
+import NavBar from "./NavBar/NavBar.jsx";
 
 const StyledApp = styled.div`
   color: ${(props) => props.theme.fontColor};
 `;
 
 function App() {
-  const [theme, setTheme] = useState("light");
+  const [theme, setTheme] = useStickyState("light", "theme");
 
   const themeToggler = () => {
     theme === "light" ? setTheme("dark") : setTheme("light");
@@ -18,8 +19,10 @@ function App() {
     <ThemeProvider theme={theme === "light" ? lightTheme : darkTheme}>
       <GlobalStyles />
       <StyledApp>
-        Hello World
-        <button onClick={() => themeToggler()}>Change Theme</button>
+        <div className="navbar">
+          <NavBar onToggle={themeToggler} theme={theme} />
+        </div>
+        <div className="background">{<h1>{theme} mode activated</h1> } </div>
       </StyledApp>
     </ThemeProvider>
   );
