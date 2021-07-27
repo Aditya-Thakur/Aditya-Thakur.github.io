@@ -30,7 +30,6 @@
     padding: 0 10px;
     border-radius: 10px;
     width: 12%;
-    background-color: rgb(136, 196, 131);
     cursor: pointer;
 }
 
@@ -41,10 +40,6 @@
     height: auto;
     width: 30px;
     margin-bottom: -15px;
-}
-
-.active {
-    background-color: rgb(196, 131, 131);
 }
 
 .toggle--checkbox {

@@ -1,8 +1,8 @@
 import './NavBar.css';
-import { FaHome } from 'react-icons/fa';
-import { GrProjects, GrContact } from 'react-icons/gr';
+
+import { FaHome, FaHandshake } from 'react-icons/fa';
 import { ImProfile } from 'react-icons/im';
-import { GiSoapExperiment, GiRead } from 'react-icons/gi';
+import { GiSoapExperiment, GiRead, GiAbstract067 } from 'react-icons/gi';
 import { useState } from 'react';
 
 
@@ -22,7 +22,7 @@ const NavBar = ({ onToggle, theme }) => {
                 </div>
                 <div className={"nav-tile "+ (active==='projects'?'active':'')} onClick={() => {changeActive('projects')}}>
                     <div className="icon">
-                        <GrProjects size="5em" />
+                        <GiAbstract067 size="5em" />
                     </div>
                     <div className="title">
                         Projects
@@ -54,7 +54,7 @@ const NavBar = ({ onToggle, theme }) => {
                 </div>
                 <div className={"nav-tile "+ (active==='contact'?'active':'')} onClick={() => {changeActive('contact')}}>
                     <div className="icon">
-                        <GrContact size="5em" />
+                        <FaHandshake size="5em" />
                     </div>
                     <div className="title">
                         Contact

@@ -9,23 +9,26 @@ const StyledApp = styled.div`
 `;
 
 function App() {
-  const [theme, setTheme] = useStickyState("light", "theme");
+    const [theme, setTheme] = useStickyState("light", "theme");
 
-  const themeToggler = () => {
-    theme === "light" ? setTheme("dark") : setTheme("light");
-  };
+    const themeToggler = () => {
+        theme === "light" ? setTheme("dark") : setTheme("light");
+    };
 
-  return (
-    <ThemeProvider theme={theme === "light" ? lightTheme : darkTheme}>
-      <GlobalStyles />
-      <StyledApp>
-        <div className="navbar">
-          <NavBar onToggle={themeToggler} theme={theme} />
-        </div>
-        <div className="background">{<h1>{theme} mode activated</h1> } </div>
-      </StyledApp>
-    </ThemeProvider>
-  );
+    return (
+        <ThemeProvider theme={theme === "light" ? lightTheme : darkTheme}>
+            <GlobalStyles />
+            <StyledApp>
+                <div className="navbar">
+                    <NavBar onToggle={themeToggler} theme={theme} />
+                </div>
+                <div className="background">
+                    <h1>Coming Soon</h1>
+                    <h3>{theme} mode activated</h3>
+                </div>
+            </StyledApp>
+        </ThemeProvider>
+    );
 }
 
 export default App;

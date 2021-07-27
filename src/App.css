@@ -5,14 +5,16 @@
     --blue-color: #96dcee;
     --yellow-background: #fffaa8;
     --yellow-border: #f5eb71;
-    --baby-pink-background: rgb(74, 161, 201);
+    --baby-pink-background: rgb(63, 177, 133);
+    --green-background: rgb(125, 185, 14);
     /** dark side **/
     --indigo-background: #808fc7;
     --indigo-border: #5d6baa;
     --indigo-color: #6b7abb;
     --gray-border: #e8e8ea;
     --gray-dots: #e8e8ea;
-    --pink-background: rgb(38, 112, 146);
+    --pink-background: rgba(0, 253, 156, 0.829);
+    --dark-green-background: rgb(23, 107, 16);
     /** general **/
     --white: #fff;
     --black: #000;
@@ -29,4 +31,7 @@ body {
     width: 100%;
     height: 100%;
     transition: all 250ms ease-in;
+    display: grid;
+    position: relative;
+    justify-content: center;
 }

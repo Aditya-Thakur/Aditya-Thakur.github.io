@@ -5,7 +5,8 @@ export const lightTheme = {
     fontColor: "var(--black)",
     navBackground: "var(--blue-color)",
     navTileBackground: "var(--baby-pink-background)",
-    oppColor: "var(--black)"
+    oppColor: "var(--black)",
+    navInactiveColor: "var(--green-background)",
 };
 
 export const darkTheme = {
@@ -13,7 +14,8 @@ export const darkTheme = {
     fontColor: "var(--black)",
     navBackground: "var(--indigo-color)",
     navTileBackground: "var(--pink-background)",
-    oppColor: "var(--white)"
+    oppColor: "var(--white)",
+    navInactiveColor: "var(--dark-green-background)",
 };
 
 export const GlobalStyles = createGlobalStyle `
@@ -27,5 +29,8 @@ export const GlobalStyles = createGlobalStyle `
   .nav-container .active {
     background-color: ${(props) => props.theme.navTileBackground};
     color: ${(props) => props.theme.fontColor};
+  }
+  .nav-tile {
+    background-color: ${(props) => props.theme.navInactiveColor};
   }
 `;
