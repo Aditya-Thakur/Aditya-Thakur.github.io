@@ -133,6 +133,14 @@
       backdrop-filter: blur(6px)
     }
 
+    /* Ghost buttons use cream text for dark panels — but the welcome modal
+       is cream itself, so the button needs dark text there to be legible. */
+    #instructions .btn.ghost {
+      color: var(--ink);
+      background: rgba(17, 24, 39, .06);
+      border-color: rgba(17, 24, 39, .35)
+    }
+
     .btn.small {
       font-size: .85rem;
       padding: .5em 1em
