@@ -458,6 +458,64 @@
       transition: left .12s linear, top .12s linear
     }
 
+    /* ---------- stall menu (teleport) ---------- */
+    #stall-menu {
+      top: 238px;
+      right: 14px;
+      width: 148px;
+      border-radius: 16px;
+      background: rgba(14, 18, 54, .78);
+      border: 1.5px solid rgba(250, 204, 21, .45);
+      backdrop-filter: blur(8px);
+      padding: 8px;
+      box-shadow: var(--shadow)
+    }
+
+    #stall-menu .sm-title {
+      font-family: var(--disp);
+      font-size: .62rem;
+      letter-spacing: .12em;
+      text-transform: uppercase;
+      color: #c9c4f5;
+      text-align: center;
+      margin-bottom: 6px
+    }
+
+    #sm-list {
+      display: flex;
+      flex-direction: column;
+      gap: 5px
+    }
+
+    .sm-btn {
+      display: flex;
+      align-items: center;
+      gap: 7px;
+      width: 100%;
+      text-align: left;
+      background: rgba(255, 247, 237, .08);
+      color: #fef3c7;
+      border: 1px solid rgba(255, 247, 237, .14);
+      border-radius: 9px;
+      padding: 6px 8px;
+      font-family: var(--disp);
+      font-size: .72rem;
+      cursor: pointer
+    }
+
+    .sm-btn:hover,
+    .sm-btn:focus-visible {
+      background: rgba(250, 204, 21, .22);
+      outline: none
+    }
+
+    .sm-btn .dot {
+      width: 9px;
+      height: 9px;
+      border-radius: 3px;
+      flex: none
+    }
+
     /* ---------- instructions card ---------- */
     #instructions {
       position: fixed;
@@ -511,6 +569,8 @@
     #instructions .row {
       display: flex;
       justify-content: flex-end;
+      gap: 8px;
+      flex-wrap: wrap;
       margin-top: 4px
     }
 
@@ -2846,6 +2906,11 @@
         top: 66px
       }
 
+      #stall-menu {
+        width: 112px;
+        top: 200px
+      }
+
       #mm-area {
         height: 86px
       }
@@ -2981,13 +3046,17 @@
     <div class="mm-title">Park Map</div>
     <div id="mm-area"></div>
   </div>
+  <div id="stall-menu" class="hud" aria-label="Jump to a stall">
+    <div class="sm-title">Jump to a stall</div>
+    <div id="sm-list"></div>
+  </div>
 
   <!-- First-visit instructions -->
   <div id="instructions" role="note">
     <h2>🎟️ Welcome, explorer!</h2>
     <p>Use the arrow keys or the buttons to explore the park. Walk up to a stall and a magic button appears.</p>
     <div class="keys"><span>← ↑ ↓ →</span><span>W A S D</span><span>Enter = open</span><span>Esc = back</span></div>
-    <div class="row"><button class="btn small" id="instr-close">Got it, let&rsquo;s roam!</button></div>
+    <div class="row"><button class="btn small ghost" id="instr-simple">📄 View simple resume</button><button class="btn small" id="instr-close">Got it, let&rsquo;s roam!</button></div>
   </div>
 
   <!-- Proximity CTA -->
@@ -3293,10 +3362,18 @@
         fs -= 3; x.font = '800 ' + fs + 'px "Baloo 2","Trebuchet MS",sans-serif';
       }
       x.fillStyle = fg;
-      x.fillText(text, w / 2, o.pre ? h * 0.62 : (o.sub ? h * 0.42 : h / 2));
+      // When both a pre-line and a sub-line exist, spread the three lines out
+      // (pre 0.30 / title 0.54 / sub 0.82) so the title never sits on the sub.
+      x.fillText(text, w / 2, (o.pre && o.sub) ? h * 0.54 : (o.pre ? h * 0.62 : (o.sub ? h * 0.42 : h / 2)));
       if (o.sub) {
-        x.font = '700 ' + Math.round(h * 0.15) + 'px "Nunito", sans-serif';
-        x.fillStyle = '#6b7280'; x.fillText(o.sub, w / 2, h * 0.74);
+        // Shrink the sub-line to fit, like the title above — the email must
+        // never be wider than the board, whatever font is actually loaded.
+        let sfs = Math.round(h * 0.15);
+        x.font = '700 ' + sfs + 'px "Nunito", sans-serif';
+        while (x.measureText(o.sub).width > w - 130 && sfs > 20) {
+          sfs -= 2; x.font = '700 ' + sfs + 'px "Nunito", sans-serif';
+        }
+        x.fillStyle = '#6b7280'; x.fillText(o.sub, w / 2, o.pre ? h * 0.82 : h * 0.74);
       }
       const t = new THREE.CanvasTexture(c);
       t.encoding = THREE.sRGBEncoding; t.anisotropy = 4;
@@ -3496,7 +3573,7 @@
       (function gate() {
         const g = new THREE.Group();
         const stripes = mat('#EF4444');
-        for (const sx of [-4.6, 4.6]) {
+        for (const sx of [-6, 6]) {
           const pil = mesh('CylinderGeometry', [0.5, 0.62, 5.2, 12], stripes); pil.position.set(sx, 2.6, 0);
           const band1 = mesh('CylinderGeometry', [0.53, 0.53, 0.75, 12], mat('#FFF7ED')); band1.position.set(sx, 1.6, 0);
           const band2 = band1.clone(); band2.position.y = 3.2;
@@ -3510,8 +3587,8 @@
         });
         board.position.set(0, 5.15, 0); g.add(board);
         const gGlow = glow('#FACC15', 7); gGlow.position.set(0, 5.2, 0.7); g.add(gGlow);
-        g.add(strand(-4.6, 4.6, 0.3, 4.6, 4.6, 0.3, 10, 'flags'));
-        g.add(balloonCluster(-5.9, 0.6, 3), balloonCluster(5.9, 0.6, 3));
+        g.add(strand(-6, 4.6, 0.3, 6, 4.6, 0.3, 10, 'flags'));
+        g.add(balloonCluster(-7.2, -0.6, 3), balloonCluster(7.2, -0.6, 3));
 
         /* ticket booth */
         const tb = new THREE.Group();
@@ -3721,14 +3798,17 @@
         const st = STALLS[4];
         const g = stallBase(st, { w: 7, signY: 4.9, r: 3.8 });
         for (const px of [-2.6, 2.6]) {
-          const post = mesh('CylinderGeometry', [0.14, 0.18, 2.6, 10], mat('#3a3f52')); post.position.set(px, 1.3, 0); g.add(post);
+          // Posts sit BEHIND the board (z -0.3): their radius (0.18) used to
+          // poke in front of the face (z 0.075) and hide the email's first
+          // and last letters. Now they read as the board's mounting posts.
+          const post = mesh('CylinderGeometry', [0.14, 0.18, 2.6, 10], mat('#3a3f52')); post.position.set(px, 1.3, -0.3); g.add(post);
         }
         const board = signBoard('Say Hello! 👋', {
           bw: 6.6, bh: 2.7, w: 900, h: 370, size: 96, pre: '— CONTACT ADITYA —', sub: RESUME.email
         });
         board.position.y = 3.1; g.add(board);
-        const bg1 = glow('#FACC15', 5.5); bg1.position.set(-2.4, 3.1, 0.5); g.add(bg1);
-        const bg2 = glow('#FB923C', 5.5); bg2.position.set(2.4, 3.1, 0.5); g.add(bg2);
+        const bg1 = glow('#FACC15', 5.5); bg1.position.set(-3.3, 4, 0.5); g.add(bg1);
+        const bg2 = glow('#FB923C', 5.5); bg2.position.set(3.3, 4, 0.5); g.add(bg2);
         /* speakers + benches + balloons */
         for (const sxx of [-3.3, 3.3]) {
           const sp = mesh('ConeGeometry', [0.28, 0.55, 10], mat('#111827'));
@@ -3743,7 +3823,7 @@
           }
           bench.position.set(bx, 0, 2.6); g.add(bench);
         }
-        g.add(balloonCluster(-3.6, 1.6, 3), balloonCluster(3.6, 1.6, 3));
+        g.add(balloonCluster(-4.7, 1.6, 3), balloonCluster(4.7, 1.6, 3));
       })();
 
       /* balloon bobbing (all clusters) */
@@ -3803,6 +3883,40 @@
       S.add(strand(-5.4, 3.05, -10.4, 5.4, 3.05, -10.4, 11, 'flags'));
       S.add(strand(-2.8, 3.05, -19, 2.8, 3.05, -19, 8, 'lights'));
 
+      /* --- park fence: visible boundary, matches clampPark --- */
+      const _fencePts = new Set(); // one post per corner (runs share endpoints)
+      function fenceRun(x1, z1, x2, z2) {
+        const dx = x2 - x1, dz = z2 - z1, len = Math.hypot(dx, dz);
+        const n = Math.max(1, Math.round(len / 2));
+        const ang = Math.atan2(dx, dz);
+        for (let i = 0; i <= n; i++) {
+          const t = i / n;
+          const px = x1 + dx * t, pz = z1 + dz * t;
+          const key = px.toFixed(2) + ',' + pz.toFixed(2);
+          if (_fencePts.has(key)) continue;
+          _fencePts.add(key);
+          const post = mesh('BoxGeometry', [0.14, 1.05, 0.14], mat('#6D28D9'));
+          post.position.set(px, 0.52, pz);
+          S.add(post);
+          const cap = mesh('SphereGeometry', [0.11, 8, 8], bmat('#FACC15'));
+          cap.position.set(px, 1.1, pz);
+          S.add(cap);
+        }
+        for (const ry of [0.55, 0.95]) {
+          const rail = new THREE.Mesh(new THREE.BoxGeometry(0.09, 0.09, len), mat('#FACC15'));
+          rail.position.set((x1 + x2) / 2, ry, (z1 + z2) / 2);
+          rail.rotation.y = ang;
+          S.add(rail);
+        }
+      }
+      fenceRun(-23, -27, 23, -27);          // north
+      fenceRun(-23, -27, -23, 22.5);        // west
+      fenceRun(23, -27, 23, 22.5);          // east
+      fenceRun(-23, 22.5, -6.2, 22.5);      // south, west of the gate
+      fenceRun(6.2, 22.5, 23, 22.5);        // south, east of the gate
+      fenceRun(-6.2, 22.5, -6.2, 25.8);     // gate corridor, west
+      fenceRun(6.2, 22.5, 6.2, 25.8);       // gate corridor, east
+
       /* --- player + camera --- */
       P.player = buildExplorer();
       P.player.position.set(P.pos.x, 0, P.pos.z);
@@ -3826,10 +3940,10 @@
       World.park = P;
     }
 
-    /* park bounds: rectangle + gate corridor */
+    /* park bounds: rectangle + gate corridor (matches the visible fence) */
     function clampPark(p) {
-      if (p.z > 21.5) { p.x = Math.max(-6.2, Math.min(6.2, p.x)); p.z = Math.min(25.8, p.z); }
-      else { p.x = Math.max(-24, Math.min(24, p.x)); p.z = Math.max(-28.6, p.z); }
+      if (p.z > 22.5) { p.x = Math.max(-5.7, Math.min(5.7, p.x)); p.z = Math.min(25.8, p.z); }
+      else { p.x = Math.max(-22.5, Math.min(22.5, p.x)); p.z = Math.max(-26.5, p.z); }
     }
     function resolveColliders(p, colliders, pr) {
       for (let i = 0; i < colliders.length; i++) {
@@ -4218,7 +4332,7 @@
         '<h2>Experience</h2>' + exp.map(s => '<div class="item"><div class="t">' + s.role + ' — ' + s.company + '</div><div class="m">' + s.loc + ' · ' + s.dur + '</div><p>' + s.story + (s.highlight ? ' ' + s.highlight.replace('⭐ ', '') : '') + '</p></div>').join('') +
         '<h2>Education</h2><div class="item"><div class="t">B.Tech, Information Technology — Haldia Institute of Technology, Haldia</div><div class="m">Aug 2015 – Jun 2019 · 8.06 DGPA</div></div>' +
         '<div class="item"><div class="t">I.Sc. — R B Jalan College, Darbhanga</div><div class="m">Apr 2013 – Mar 2015 · 76.5%</div></div>' +
-        '<div class="item"><div class="t">School</div><div class="m">Details to be added</div></div>' +
+        '<div class="item"><div class="t">School — +2 Raj High School</div><div class="m">Mar 2013 · 67%</div></div>' +
         '<h2>Skills</h2>' + RESUME.skills.map(g => '<p><b>' + g.group + ':</b> ' + g.items.join(', ') + '</p>').join('') +
         '<p><b>Soft skills:</b> ' + RESUME.softSkills.join(', ') + '</p>' +
         '<h2>Personal</h2><p><b>Languages:</b> ' + RESUME.languages.join(', ') + '</p><p><b>Hobbies:</b> ' + RESUME.hobbies.join(', ') + '</p>' +
@@ -4685,6 +4799,7 @@
       $('#brand').style.display = m === 'park' ? '' : 'none';
       $('#helpbtn').style.display = (m === 'park' || m === 'gallery') ? '' : 'none';
       $('#minimap').style.display = m === 'park' ? '' : 'none';
+      $('#stall-menu').style.display = m === 'park' ? '' : 'none';
       $('#dpad').style.display = (m === 'park' || m === 'gallery' || m === 'train' || m === 'bike') ? 'grid' : 'none';
       $('#loc').style.display = m === 'fallback' ? 'none' : '';
       GBack.style.display = m === 'gallery' ? '' : 'none';
@@ -4720,6 +4835,25 @@
         if ((frame++ & 3) !== 0) return;
         pl.style.left = mapX(x); pl.style.top = mapZ(z);
       };
+    }
+
+    /* ---------- stall menu / teleport ---------- */
+    function buildStallMenu() {
+      const list = $('#sm-list');
+      STALLS.forEach(s => {
+        const b = el('<button class="sm-btn" type="button"><span class="dot" style="background:' + s.color + '"></span>' + s.icon + ' ' + esc(s.name) + '</button>');
+        b.addEventListener('click', () => teleportToStall(s));
+        list.appendChild(b);
+      });
+    }
+    function teleportToStall(s) {
+      if (App.mode !== 'park' || !World.park) return;
+      const P = World.park;
+      P.pos.x = s.cta0[0]; P.pos.z = s.cta0[1];
+      P.heading = Math.atan2(s.pos[0] - s.cta0[0], s.pos[1] - s.cta0[1]);
+      P.player.position.set(P.pos.x, 0, P.pos.z);
+      P.player.rotation.y = P.heading;
+      dismissInstructions();
     }
 
     /* ---------- proximity wiring ---------- */
@@ -4873,6 +5007,7 @@
       else if (App.mode === 'gallery' && App.activePainting) projectModal(App.activePainting);
     });
     $('#instr-close').addEventListener('click', () => { dismissInstructions(); $('#stage').focus(); });
+    $('#instr-simple').addEventListener('click', () => { dismissInstructions(); showFallback(); });
     $('#m-close').addEventListener('click', () => Modal.close());
     $('#modal').addEventListener('click', (e) => { if (e.target === e.currentTarget) Modal.close(); });
     document.addEventListener('click', (e) => {
@@ -5008,6 +5143,7 @@
         World.init($('#stage'));
         wireWorld();
         buildMinimap();
+        buildStallMenu();
         World.start('park');
         setMode('park');
         hideLoader();
